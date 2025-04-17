@@ -1,22 +1,50 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, X, Copy, ChevronDown } from 'lucide-react';
+import { debounce } from 'lodash';
+
+// TypeScript interfaces
+interface Parameter {
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
+}
+
+interface Header {
+  name: string;
+  value: string;
+  required: boolean;
+}
+
+interface Endpoint {
+  method: string;
+  path: string;
+  description: string;
+  parameters?: Parameter[];
+  headers?: Header[];
+  requestBody?: string;
+  response?: { status: string; body: string };
+  errorResponse?: { status: string; body: string };
+}
+
+interface Section {
+  id: string;
+  endpoints: Endpoint[];
+}
 
 const APIDocumentationSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Handle tab click
-  const handleTabClick = (tabId: string): void => {
-    setActiveTab(tabId);
-  };
+  // Debounced search handler
+  const handleSearchInput = debounce((value: string) => {
+    setSearchTerm(value.toLowerCase());
+  }, 300);
 
-  // Handle search input
-  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setSearchTerm(e.target.value.toLowerCase());
-  };
-
-  // Handle clear search
+  // Clear search
   const handleClearSearch = (): void => {
     setSearchTerm('');
     const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
@@ -26,7 +54,7 @@ const APIDocumentationSection: React.FC = () => {
     }
   };
 
-  // Handle expand section
+  // Expand/collapse section
   const handleExpand = (endpointId: string): void => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -34,14 +62,14 @@ const APIDocumentationSection: React.FC = () => {
     }));
   };
 
-  // Handle copy endpoint
+  // Copy endpoint to clipboard
   const handleCopy = (endpoint: string): void => {
     navigator.clipboard.writeText(endpoint).then(() => {
-      alert(`Endpoint copied to clipboard: ${endpoint}`);
+      alert(`Endpoint copied: ${endpoint}`);
     });
   };
 
-  // Handle scroll down
+  // Scroll to bottom
   const handleScrollDown = (): void => {
     window.scrollTo({
       top: document.body.scrollHeight,
@@ -49,61 +77,77 @@ const APIDocumentationSection: React.FC = () => {
     });
   };
 
-  // Filter sections based on search term
+  // Filter endpoints based on search term
   const filterSections = (endpoint: string): boolean => {
     return endpoint.toLowerCase().includes(searchTerm);
   };
 
   // Parameters Table Component
-  const ParametersTable = ({ parameters }: { parameters: any[] }) => (
-    <div className="mt-4">
-      <h3 className="bg-gray-800 p-2 rounded-t-lg font-semibold text-white">Parameters</h3>
+  const ParametersTable = ({ parameters }: { parameters: Parameter[] }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-4 backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl border border-gray-600 shadow-xl"
+    >
+      <h3 className="bg-[rgba(255,107,107,0.2)] p-3 rounded-t-xl font-semibold text-white">Parameters</h3>
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-gray-700">
-            <th className="p-2 text-left text-gray-300">NAME</th>
-            <th className="p-2 text-left text-gray-300">TYPE</th>
-            <th className="p-2 text-left text-gray-300">REQUIRED</th>
-            <th className="p-2 text-left text-gray-300">DESCRIPTION</th>
+          <tr className="bg-gray-700/50">
+            <th className="p-3 text-left text-gray-200 font-medium">Name</th>
+            <th className="p-3 text-left text-gray-200 font-medium">Type</th>
+            <th className="p-3 text-left text-gray-200 font-medium">Required</th>
+            <th className="p-3 text-left text-gray-200 font-medium">Description</th>
           </tr>
         </thead>
         <tbody>
           {parameters.map((param, index) => (
-            <tr key={index} className="border-t border-gray-600">
-              <td className="p-2 text-white">{param.name}</td>
-              <td className="p-2 text-white">{param.type}</td>
-              <td className="p-2">
-                <span className={param.required ? 'text-red-500' : 'text-gray-400'}>
+            <tr
+              key={index}
+              className="border-t border-gray-600 hover:bg-gray-800/30 transition-colors duration-200"
+            >
+              <td className="p-3 text-white font-mono">{param.name}</td>
+              <td className="p-3 text-white">{param.type}</td>
+              <td className="p-3">
+                <span className={param.required ? 'text-space-nebula-pink' : 'text-gray-400'}>
                   {param.required ? 'Required' : 'Optional'}
                 </span>
               </td>
-              <td className="p-2 text-gray-300">{param.description}</td>
+              <td className="p-3 text-gray-300">{param.description}</td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </motion.div>
   );
 
   // Headers Table Component
-  const HeadersTable = ({ headers }: { headers: any[] }) => (
-    <div className="mt-4">
-      <h3 className="bg-gray-800 p-2 rounded-t-lg font-semibold text-white">Request Headers</h3>
+  const HeadersTable = ({ headers }: { headers: Header[] }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-4 backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl border border-gray-600 shadow-xl"
+    >
+      <h3 className="bg-[rgba(255,107,107,0.2)] p-3 rounded-t-xl font-semibold text-white">Request Headers</h3>
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-gray-700">
-            <th className="p-2 text-left text-gray-300">NAME</th>
-            <th className="p-2 text-left text-gray-300">VALUE</th>
-            <th className="p-2 text-left text-gray-300">REQUIRED</th>
+          <tr className="bg-gray-700/50">
+            <th className="p-3 text-left text-gray-200 font-medium">Name</th>
+            <th className="p-3 text-left text-gray-200 font-medium">Value</th>
+            <th className="p-3 text-left text-gray-200 font-medium">Required</th>
           </tr>
         </thead>
         <tbody>
           {headers.map((header, index) => (
-            <tr key={index} className="border-t border-gray-600">
-              <td className="p-2 text-white">{header.name}</td>
-              <td className="p-2 text-white">{header.value}</td>
-              <td className="p-2">
-                <span className={header.required ? 'text-red-500' : 'text-gray-400'}>
+            <tr
+              key={index}
+              className="border-t border-gray-600 hover:bg-gray-800/30 transition-colors duration-200"
+            >
+              <td className="p-3 text-white font-mono">{header.name}</td>
+              <td className="p-3 text-white">{header.value}</td>
+              <td className="p-3">
+                <span className={header.required ? 'text-space-nebula-pink' : 'text-gray-400'}>
                   {header.required ? 'Required' : 'Optional'}
                 </span>
               </td>
@@ -111,388 +155,508 @@ const APIDocumentationSection: React.FC = () => {
           ))}
         </tbody>
       </table>
-    </div>
+    </motion.div>
   );
 
   // Request Body Component
   const RequestBody = ({ body }: { body: string }) => (
-    <div className="mt-4">
-      <h3 className="bg-gray-800 p-2 rounded-t-lg font-semibold text-white">Request Body</h3>
-      <div className="p-2 bg-gray-700 rounded-b-lg">
-        <pre className="text-white">{body}</pre>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-4 backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl border border-gray-600 shadow-xl"
+    >
+      <h3 className="bg-[rgba(255,107,107,0.2)] p-3 rounded-t-xl font-semibold text-white">Request Body</h3>
+      <div className="p-3">
+        <pre className="text-white font-mono text-sm">{body}</pre>
       </div>
-    </div>
+    </motion.div>
   );
 
   // Response Component
   const Response = ({ status, body }: { status: string; body: string }) => (
-    <div className="mt-4">
-      <h3 className="bg-gray-800 p-2 rounded-t-lg font-semibold text-white">Response</h3>
-      <div className="p-2 bg-gray-700 rounded-b-lg">
-        <p className="text-gray-300">
-          <strong>Status:</strong> {status}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-4 backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl border border-gray-600 shadow-xl"
+    >
+      <h3 className="bg-[rgba(255,107,107,0.2)] p-3 rounded-t-xl font-semibold text-white">Response</h3>
+      <div className="p-3">
+        <p className="text-gray-200">
+          <strong>Status:</strong> <span className="text-space-nebula-pink">{status}</span>
         </p>
-        <pre className="text-white mt-2">{body}</pre>
+        <pre className="text-white font-mono text-sm mt-2">{body}</pre>
       </div>
-    </div>
+    </motion.div>
   );
 
   // Error Response Component
   const ErrorResponse = ({ status, body }: { status: string; body: string }) => (
-    <div className="mt-4">
-      <h3 className="bg-gray-800 p-2 rounded-t-lg font-semibold text-white">Error Response</h3>
-      <div className="p-2 bg-gray-700 rounded-b-lg">
-        <p className="text-gray-300">
-          <strong>Status:</strong> {status}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-4 backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl border border-gray-600 shadow-xl"
+    >
+      <h3 className="bg-[rgba(255,107,107,0.2)] p-3 rounded-t-xl font-semibold text-white">Error Response</h3>
+      <div className="p-3">
+        <p className="text-gray-200">
+          <strong>Status:</strong> <span className="text-space-nebula-pink">{status}</span>
         </p>
-        <pre className="text-white mt-2">{body}</pre>
+        <pre className="text-white font-mono text-sm mt-2">{body}</pre>
       </div>
-    </div>
+    </motion.div>
   );
 
+  // API Sections Data (Updated for Milling Industry)
+  const apiSections: Section[] = [
+    {
+      id: 'all',
+      endpoints: [
+        {
+          method: 'GET',
+          path: '/api/milling/users',
+          description: 'Retrieves a list of users managing milling operations (e.g., mill operators, admins).',
+          parameters: [
+            { name: 'page', type: 'integer', required: false, description: 'Page number for pagination' },
+            { name: 'limit', type: 'integer', required: false, description: 'Number of users per page' },
+            { name: 'role', type: 'string', required: false, description: 'Filter by role (e.g., operator, admin)' },
+          ],
+          headers: [
+            { name: 'Authorization', value: `Bearer {token}`, required: true },
+          ],
+          response: {
+            status: '200 OK',
+            body: `[
+              {
+                "id": 1,
+                "name": "John Doe",
+                "email": "john@milling.com",
+                "role": "operator",
+                "created_at": "2025-01-01T12:00:00Z"
+              },
+              {
+                "id": 2,
+                "name": "Jane Smith",
+                "email": "jane@milling.com",
+                "role": "admin",
+                "created_at": "2025-01-02T12:00:00Z"
+              }
+            ]`,
+          },
+          errorResponse: {
+            status: '401 Unauthorized',
+            body: `{
+              "error": "Invalid token"
+            }`,
+          },
+        },
+      ],
+    },
+    {
+      id: 'inventory',
+      endpoints: [
+        {
+          method: 'GET',
+          path: '/api/milling/inventory',
+          description: 'Fetches inventory details for raw materials (e.g., wheat, corn) and finished products (e.g., flour).',
+          parameters: [
+            { name: 'type', type: 'string', required: false, description: 'Filter by type (raw, finished)' },
+            { name: 'limit', type: 'integer', required: false, description: 'Number of items per page' },
+          ],
+          headers: [
+            { name: 'Authorization', value: `Bearer {token}`, required: true },
+          ],
+          response: {
+            status: '200 OK',
+            body: `[
+              {
+                "id": 1,
+                "name": "Wheat",
+                "type": "raw",
+                "quantity": 5000,
+                "unit": "kg"
+              },
+              {
+                "id": 2,
+                "name": "Whole Wheat Flour",
+                "type": "finished",
+                "quantity": 2000,
+                "unit": "kg"
+              }
+            ]`,
+          },
+          errorResponse: {
+            status: '403 Forbidden',
+            body: `{
+              "error": "Access denied"
+            }`,
+          },
+        },
+      ],
+    },
+    {
+      id: 'production',
+      endpoints: [
+        {
+          method: 'POST',
+          path: '/api/milling/production',
+          description: 'Initiates a milling production batch, converting raw materials to finished products.',
+          parameters: [
+            { name: 'batch_id', type: 'string', required: true, description: 'Unique batch identifier' },
+            { name: 'material_id', type: 'integer', required: true, description: 'ID of raw material' },
+            { name: 'quantity', type: 'integer', required: true, description: 'Quantity to process (kg)' },
+          ],
+          headers: [
+            { name: 'Authorization', value: `Bearer {token}`, required: true },
+            { name: 'Content-Type', value: 'application/json', required: true },
+          ],
+          requestBody: `{
+            "batch_id": "BATCH2025-001",
+            "material_id": 1,
+            "quantity": 1000
+          }`,
+          response: {
+            status: '201 Created',
+            body: `{
+              "batch_id": "BATCH2025-001",
+              "status": "initiated",
+              "output_product": "Whole Wheat Flour",
+              "output_quantity": 950
+            }`,
+          },
+          errorResponse: {
+            status: '400 Bad Request',
+            body: `{
+              "error": "Invalid material ID"
+            }`,
+          },
+        },
+      ],
+    },
+    {
+      id: 'authentication',
+      endpoints: [
+        {
+          method: 'POST',
+          path: '/api/auth/login',
+          description: 'Authenticates a user and returns a JWT token for milling ERP access.',
+          parameters: [
+            { name: 'email', type: 'string', required: true, description: "User's email address" },
+            { name: 'password', type: 'string', required: true, description: "User's password" },
+          ],
+          headers: [
+            { name: 'Content-Type', value: 'application/json', required: true },
+          ],
+          requestBody: `{
+            "email": "user@milling.com",
+            "password": "securepassword"
+          }`,
+          response: {
+            status: '200 OK',
+            body: `{
+              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+              "user": {
+                "id": 1,
+                "email": "user@milling.com",
+                "role": "admin"
+              }
+            }`,
+          },
+          errorResponse: {
+            status: '401 Unauthorized',
+            body: `{
+              "error": "Invalid credentials"
+            }`,
+          },
+        },
+      ],
+    },
+    {
+      id: 'orders',
+      endpoints: [
+        {
+          method: 'GET',
+          path: '/api/milling/orders',
+          description: 'Retrieves a list of customer orders for milled products.',
+          parameters: [
+            { name: 'status', type: 'string', required: false, description: 'Filter by status (e.g., pending, shipped)' },
+            { name: 'customer_id', type: 'integer', required: false, description: 'Filter by customer ID' },
+          ],
+          headers: [
+            { name: 'Authorization', value: `Bearer {token}`, required: true },
+          ],
+          response: {
+            status: '200 OK',
+            body: `[
+              {
+                "id": 1,
+                "customer_id": 101,
+                "status": "pending",
+                "total": 1500.00,
+                "created_at": "2025-01-01T12:00:00Z"
+              },
+              {
+                "id": 2,
+                "customer_id": 102,
+                "status": "shipped",
+                "total": 800.00,
+                "created_at": "2025-01-02T12:00:00Z"
+              }
+            ]`,
+          },
+          errorResponse: {
+            status: '403 Forbidden',
+            body: `{
+              "error": "Access denied"
+            }`,
+          },
+        },
+      ],
+    },
+  ];
+
   return (
-    <section id="api" className="py-20 relative z-10" ref={sectionRef}>
-      <div className="container mx-auto px-4 appear">
-        <h2 className="text-4xl font-bold text-purple-400 text-center mb-8">API Documentation</h2>
-        <p className="text-gray-300 text-center max-w-3xl mx-auto mb-4">
-          Explore and understand all available API endpoints in the system
-        </p>
+    <section
+      id="api"
+      className="py-20 relative z-10 bg-transparent" // No background
+      ref={sectionRef}
+    >
+      <div className="container mx-auto px-4">
+        {/* Introduction */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl md:text-5xl font-extrabold text-space-nebula-pink mb-4">
+            Grevona Cloud API Documentation
+          </h2>
+          <p className="text-gray-200 text-lg max-w-3xl mx-auto">
+            Grevona Cloud is a cutting-edge ERP solution for the milling industry, enabling seamless management of
+            inventory, production, and orders through our powerful API.
+          </p>
+        </motion.div>
+
+        {/* Getting Started */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl p-6 mb-12 border border-gray-600 shadow-xl"
+        >
+          <h3 className="text-2xl font-semibold text-space-light-purple mb-4">Getting Started</h3>
+          <p className="text-gray-200 mb-4">
+            The Grevona Cloud API is a RESTful interface for milling ERP integration. Start with these essentials:
+          </p>
+          <ul className="list-disc list-inside text-gray-200 space-y-2">
+            <li>
+              <strong>Base URL:</strong>{' '}
+              <code className="text-space-nebula-pink font-mono">https://graduation.knowhow-solution.com</code>
+            </li>
+            <li>
+              <strong>Authentication:</strong> Bearer token (JWT) required for most endpoints.
+            </li>
+            <li>
+              <strong>Rate Limits:</strong> 1000 requests per minute per user.
+            </li>
+          </ul>
+        </motion.div>
 
         {/* Search Bar */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="relative w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="flex flex-col sm:flex-row justify-between items-center mb-8"
+        >
+          <div className="relative w-full sm:w-3/4">
             <input
               type="text"
               id="search-input"
-              placeholder="Search endpoints..."
-              className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500"
-              onChange={handleSearchInput}
-              value={searchTerm}
+              placeholder="Search endpoints (e.g., /api/milling/users)"
+              className="w-full p-3 pl-10 bg-[rgba(30,30,50,0.8)] backdrop-blur-md text-white border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-space-nebula-pink transition-all shadow-md hover:shadow-lg"
+              onChange={(e) => handleSearchInput(e.target.value)}
+              aria-label="Search API endpoints"
             />
-            <svg
-              className="absolute left-3 top-3 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            {searchTerm && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-3 text-gray-400 hover:text-space-nebula-pink transition-colors"
+                aria-label="Clear search"
+              >
+                <X size={20} />
+              </button>
+            )}
           </div>
           <button
             onClick={handleClearSearch}
-            className="ml-2 border-2 border-purple-500 text-purple-500 bg-transparent px-4 py-1 rounded-full hover:bg-purple-500 hover:text-white transition-all"
+            className="mt-4 sm:mt-0 sm:ml-4 bg-[rgba(255,107,107,0.2)] backdrop-blur-md text-space-nebula-pink px-6 py-2 rounded-full hover:bg-space-nebula-pink hover:text-white transition-all shadow-md hover:shadow-lg"
           >
             Clear
           </button>
-        </div>
+        </motion.div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-4 mb-4">
-          {['all', 'users', 'products', 'authentication', 'orders'].map((tab) => (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex flex-wrap gap-2 mb-8 backdrop-blur-md bg-[rgba(30,30,50,0.8)] p-4 rounded-xl border border-gray-600 shadow-xl"
+        >
+          {['all', 'inventory', 'production', 'authentication', 'orders'].map((tab) => (
             <button
               key={tab}
-              className={`nav-tab px-4 py-2 rounded-full ${
-                activeTab === tab ? 'bg-purple-600 text-white' : 'text-gray-300 hover:text-white'
+              className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                activeTab === tab
+                  ? 'bg-space-nebula-pink text-white shadow-md'
+                  : 'text-gray-200 hover:bg-[rgba(255,107,107,0.2)] hover:text-space-nebula-pink'
               }`}
-              data-tab={tab}
-              onClick={() => handleTabClick(tab)}
+              onClick={() => setActiveTab(tab)}
+              aria-current={activeTab === tab ? 'true' : 'false'}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
-        </div>
+        </motion.div>
 
-        {[
-          {
-            id: 'all',
-            endpoints: [
-              {
-                method: 'GET',
-                path: '/api/users',
-                description: 'Retrieves a list of all users',
-                parameters: [
-                  { name: 'page', type: 'integer', required: false, description: 'Page number for pagination' },
-                  { name: 'limit', type: 'integer', required: false, description: 'Number of items per page' },
-                  { name: 'sort', type: 'string', required: false, description: 'Field to sort by (e.g., name, created_at)' },
-                ],
-                headers: [
-                  { name: 'Authorization', value: `Bearer {'{token}'}`, required: true },
-                ],
-                response: {
-                  status: '200 OK',
-                  body: `[
-    {
-        "id": 1,
-        "name": "John Doe",
-        "email": "john@example.com",
-        "created_at": "2023-01-01T12:00:00Z"
-    },
-    {
-        "id": 2,
-        "name": "Jane Smith",
-        "email": "jane@example.com",
-        "created_at": "2023-01-02T12:00:00Z"
-    }
-]`,
-                },
-                errorResponse: {
-                  status: '401 Unauthorized',
-                  body: `{
-    "error": "Invalid token"
-}`,
-                },
-              },
-            ],
-          },
-          {
-            id: 'users',
-            endpoints: [
-              {
-                method: 'GET',
-                path: '/api/users/{id}',
-                description: 'Retrieves details of a specific user by ID',
-                parameters: [
-                  { name: 'id', type: 'integer', required: true, description: 'The ID of the user to retrieve' },
-                ],
-                headers: [
-                  { name: 'Authorization', value: `Bearer {'{token}'}`, required: true },
-                ],
-                response: {
-                  status: '200 OK',
-                  body: `{
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "created_at": "2023-01-01T12:00:00Z"
-}`,
-                },
-                errorResponse: {
-                  status: '404 Not Found',
-                  body: `{
-    "error": "User not found"
-}`,
-                },
-              },
-            ],
-          },
-          {
-            id: 'products',
-            endpoints: [
-              {
-                method: 'GET',
-                path: '/api/products',
-                description: 'Retrieves a list of all products',
-                parameters: [
-                  { name: 'category', type: 'string', required: false, description: 'Filter products by category' },
-                  { name: 'limit', type: 'integer', required: false, description: 'Number of items per page' },
-                ],
-                headers: [
-                  { name: 'Authorization', value: `Bearer {'{token}'}`, required: true },
-                ],
-                response: {
-                  status: '200 OK',
-                  body: `[
-    {
-        "id": 1,
-        "name": "Product A",
-        "category": "Electronics",
-        "price": 299.99
-    },
-    {
-        "id": 2,
-        "name": "Product B",
-        "category": "Clothing",
-        "price": 49.99
-    }
-]`,
-                },
-                errorResponse: {
-                  status: '400 Bad Request',
-                  body: `{
-    "error": "Invalid category parameter"
-}`,
-                },
-              },
-            ],
-          },
-          {
-            id: 'authentication',
-            endpoints: [
-              {
-                method: 'POST',
-                path: '/api/auth/login',
-                description: 'Authenticates a user and returns a token',
-                parameters: [
-                  { name: 'email', type: 'string', required: true, description: "User's email address" },
-                  { name: 'password', type: 'string', required: true, description: "User's password" },
-                ],
-                headers: [
-                  { name: 'Content-Type', value: 'application/json', required: true },
-                ],
-                requestBody: `{
-    "email": "user@example.com",
-    "password": "yourpassword"
-}`,
-                response: {
-                  status: '200 OK',
-                  body: `{
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-        "id": 1,
-        "email": "user@example.com"
-    }
-}`,
-                },
-                errorResponse: {
-                  status: '401 Unauthorized',
-                  body: `{
-    "error": "Invalid credentials"
-}`,
-                },
-              },
-            ],
-          },
-          {
-            id: 'orders',
-            endpoints: [
-              {
-                method: 'GET',
-                path: '/api/orders',
-                description: 'Retrieves a list of all orders',
-                parameters: [
-                  { name: 'user_id', type: 'integer', required: false, description: 'Filter orders by user ID' },
-                  { name: 'status', type: 'string', required: false, description: 'Filter orders by status (e.g., pending, shipped)' },
-                ],
-                headers: [
-                  { name: 'Authorization', value: `Bearer {'{token}'}`, required: true },
-                ],
-                response: {
-                  status: '200 OK',
-                  body: `[
-    {
-        "id": 1,
-        "user_id": 1,
-        "status": "pending",
-        "total": 349.98,
-        "created_at": "2023-01-01T12:00:00Z"
-    },
-    {
-        "id": 2,
-        "user_id": 2,
-        "status": "shipped",
-        "total": 49.99,
-        "created_at": "2023-01-02T12:00:00Z"
-    }
-]`,
-                },
-                errorResponse: {
-                  status: '403 Forbidden',
-                  body: `{
-    "error": "Access denied"
-}`,
-                },
-              },
-            ],
-          },
-        ].map((section) => (
-          <section
-            key={section.id}
-            id={section.id}
-            className={`tab-section ${activeTab === section.id ? 'active' : 'hidden'}`}
-          >
-            <h2 className="text-lg font-semibold mb-4 text-purple-400">
-              {section.id.charAt(0).toUpperCase() + section.id.slice(1)}
-            </h2>
-            {section.endpoints.map((endpoint, index) => {
-              const endpointId = `${section.id}-${index}`;
-              const isExpanded = expandedSections[endpointId];
+        {/* API Sections */}
+        <AnimatePresence>
+          {apiSections.map((section) => (
+            <motion.section
+              key={section.id}
+              id={section.id}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{
+                opacity: activeTab === section.id || activeTab === 'all' ? 1 : 0,
+                height: activeTab === section.id || activeTab === 'all' ? 'auto' : 0,
+              }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className={`tab-section ${activeTab === section.id || activeTab === 'all' ? 'block' : 'hidden'}`}
+            >
+              <h2 className="text-2xl font-semibold mb-6 text-space-light-purple">
+                {section.id.charAt(0).toUpperCase() + section.id.slice(1)}
+              </h2>
+              {section.endpoints.map((endpoint, index) => {
+                const endpointId = `${section.id}-${index}`;
+                const isExpanded = expandedSections[endpointId];
 
-              return (
-                <div key={index} className={`mb-6 ${filterSections(endpoint.path) ? '' : 'hidden'}`}>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <span
-                        className={`px-2 py-1 rounded-lg mr-2 ${
-                          endpoint.method === 'GET' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
-                        }`}
-                      >
-                        {endpoint.method}
-                      </span>
-                      <div className="inline-flex items-center bg-[rgba(255,255,255,0.1)] backdrop-blur-md px-3 py-1 rounded-lg">
-                        <span className="font-mono text-purple-400 endpoint">{endpoint.path}</span>
+                return (
+                  <motion.div
+                    key={index}
+                    className={`mb-8 backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl p-6 border border-gray-600 shadow-xl hover:shadow-2xl transition-shadow duration-300 ${
+                      filterSections(endpoint.path) ? '' : 'hidden'
+                    }`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="flex items-center flex-wrap gap-3">
+                        <span
+                          className={`px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-md ${
+                            endpoint.method === 'GET'
+                              ? 'bg-green-500/20 text-green-400'
+                              : endpoint.method === 'POST'
+                              ? 'bg-blue-500/20 text-blue-400'
+                              : 'bg-yellow-500/20 text-yellow-400'
+                          }`}
+                        >
+                          {endpoint.method}
+                        </span>
+                        <div className="inline-flex items-center bg-[rgba(255,255,255,0.1)] backdrop-blur-md px-3 py-1 rounded-lg shadow-inner">
+                          <span className="font-mono text-space-nebula-pink">{endpoint.path}</span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2 mt-4 sm:mt-0">
+                        <button
+                          onClick={() => handleCopy(endpoint.path)}
+                          title="Copy endpoint"
+                          className="p-2 rounded-full hover:bg-[rgba(255,107,107,0.2)] transition-colors"
+                          aria-label="Copy endpoint URL"
+                        >
+                          <Copy className="h-5 w-5 text-gray-400 hover:text-space-nebula-pink" />
+                        </button>
+                        <button
+                          onClick={() => handleExpand(endpointId)}
+                          title={isExpanded ? 'Collapse' : 'Expand'}
+                          className="p-2 rounded-full hover:bg-[rgba(255,107,107,0.2)] transition-colors"
+                          aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                        >
+                          <ChevronDown
+                            className={`h-5 w-5 text-gray-400 hover:text-space-nebula-pink transition-transform ${
+                              isExpanded ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
-                      <button onClick={() => handleCopy(endpoint.path)} title="Copy endpoint">
-                        <svg
-                          className="h-5 w-5 text-gray-400 hover:text-purple-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                          />
-                        </svg>
-                      </button>
-                      <button onClick={() => handleExpand(endpointId)} title={isExpanded ? 'Collapse' : 'Expand'}>
-                        <svg
-                          className={`h-5 w-5 text-gray-400 hover:text-purple-400 transition-transform ${
-                            isExpanded ? 'rotate-180' : ''
-                          }`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-gray-300 mt-1">{endpoint.description}</p>
+                    <p className="text-gray-200 mt-2">{endpoint.description}</p>
 
-                  {/* Collapsible Details */}
-                  {isExpanded && (
-                    <div className="mt-4 space-y-4">
-                      {endpoint.parameters && <ParametersTable parameters={endpoint.parameters} />}
-                      {endpoint.headers && <HeadersTable headers={endpoint.headers} />}
-                      {endpoint.requestBody && <RequestBody body={endpoint.requestBody} />}
-                      {endpoint.response && <Response status={endpoint.response.status} body={endpoint.response.body} />}
-                      {endpoint.errorResponse && (
-                        <ErrorResponse status={endpoint.errorResponse.status} body={endpoint.errorResponse.body} />
+                    {/* Collapsible Details */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="mt-4 space-y-4"
+                        >
+                          {endpoint.parameters && <ParametersTable parameters={endpoint.parameters} />}
+                          {endpoint.headers && <HeadersTable headers={endpoint.headers} />}
+                          {endpoint.requestBody && <RequestBody body={endpoint.requestBody} />}
+                          {endpoint.response && (
+                            <Response status={endpoint.response.status} body={endpoint.response.body} />
+                          )}
+                          {endpoint.errorResponse && (
+                            <ErrorResponse
+                              status={endpoint.errorResponse.status}
+                              body={endpoint.errorResponse.body}
+                            />
+                          )}
+                        </motion.div>
                       )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </section>
-        ))}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+            </motion.section>
+          ))}
+        </AnimatePresence>
+
+        {/* Best Practices */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="backdrop-blur-md bg-[rgba(30,30,50,0.8)] rounded-xl p-6 mt-12 border border-gray-600 shadow-xl"
+        >
+          <h3 className="text-2xl font-semibold text-space-light-purple mb-4">Best Practices</h3>
+          <ul className="list-disc list-inside text-gray-200 space-y-2">
+            <li>Use HTTPS for all API requests to ensure security.</li>
+            <li>Cache responses to reduce API calls and improve performance.</li>
+            <li>Include a valid JWT token in the <code>Authorization</code> header.</li>
+            <li>Handle errors gracefully and check response statuses.</li>
+            <li>Respect rate limits to avoid throttling.</li>
+          </ul>
+        </motion.div>
 
         {/* Scroll Down Indicator */}
-        <div className="text-center mt-8 cursor-pointer" onClick={handleScrollDown}>
-          <p className="text-gray-400">Scroll Down</p>
-          <svg
-            className="h-6 w-6 mx-auto text-gray-400 mt-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          className="text-center mt-12 cursor-pointer"
+          onClick={handleScrollDown}
+        >
+          <p className="text-gray-200">Explore More</p>
+          <ChevronDown className="h-6 w-6 mx-auto text-space-nebula-pink mt-2 animate-bounce" />
+        </motion.div>
       </div>
     </section>
   );
