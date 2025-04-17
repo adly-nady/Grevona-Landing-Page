@@ -37,37 +37,31 @@ const Index = () => {
   
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Space Background with animated stars */}
+      
       <SpaceBackground />
       
-      {/* Navigation */}
       <Navbar />
       
-      {/* Hero Section */}
       <HeroSection />
       
-      {/* Problem Section */}
       <ProblemSection />
       
-      {/* Solution Section */}
       <SolutionSection />
       
-      {/* Advantages Section */}
       <AdvantagesSection />
       
-      {/* UI/UX Section */}
       <UIUXSection />
       
-      {/* Team Section */}
       <TeamSection />
       
-      {/* Technology Stack */}
       <TechStack />
-      
-      {/* Footer */}
+ 
       <footer className="py-10 relative z-10">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-400">© 2025 Grevona Cloud. All rights reserved.</p>
+          <p className="text-gray-400">© 2025 Grevona Cloud. All rights reserved, Created By 
+            <span className="text-space-light-purple"> Eng/</span>
+            <span className="text-space-nebula-pink">Adly </span> Nady Adly
+          </p>
           <p className="text-gray-500 text-sm mt-2">A graduation project that redefines ERP for the milling industry.</p>
         </div>
       </footer>
