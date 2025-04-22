@@ -52,8 +52,8 @@ const Navbar: React.FC<NavbarProps> = ({ setActiveSection }) => {
     >
       <div className="container mx-auto flex justify-between items-center">
         <a href="#" className="text-xl font-bold text-white flex items-center gap-2">
-          <span className="inline-block w-8 h-8 rounded-full bg-space-nebula-pink glow-pink"></span>
-          Grevona
+        <img src="https://graduation.knowhow-solution.com/attachment/logo/logo.png" style={{ height: '50px' }} alt="Grevona Logo" />
+          {/* <span className="inline-block w-8 h-8 rounded-full bg-space-nebula-pink glow-pink"></span> */}
         </a>
 
         <div className="hidden md:flex gap-8">

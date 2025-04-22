@@ -33,32 +33,39 @@ const TechStack: React.FC = () => {
   
   const techStacks = {
     frontend: [
-      { name: "React", value: 90 },
-      { name: "TypeScript", value: 85 },
+      { name: "React", value: 10 },
+      { name: "Vue", value: 60 },
+      { name: "TypeScript", value: 10 },
       { name: "Tailwind CSS", value: 80 },
-      { name: "Three.js", value: 75 },
-      { name: "Redux", value: 70 }
+      { name: "JavaScript", value: 100 },
+      { name: "Pinia", value: 100 },
+      { name: "Axios", value: 75 }
     ],
     backend: [
-      { name: "Node.js", value: 85 },
-      { name: "Express", value: 80 },
-      { name: "MongoDB", value: 75 },
-      { name: "PostgreSQL", value: 70 },
-      { name: "GraphQL", value: 65 }
+      { name: "Php", value: 85 },
+      { name: "Laravel", value: 80 },
+      { name: "Python", value: 75 },
+      { name: "Flask", value: 75 },
+      { name: "websocket", value: 70 }
     ],
     ai: [
-      { name: "TensorFlow", value: 80 },
-      { name: "PyTorch", value: 75 },
-      { name: "NLP", value: 70 },
-      { name: "Computer Vision", value: 65 },
-      { name: "Predictive Analytics", value: 85 }
+      { name: "Keras", value: 80 },
+      { name: "TensorFlow", value: 75 },
+      { name: "scikit-learn", value: 70 },
+      { name: "pandas", value: 65 },
+      { name: "Matplotlib", value: 65 },
+      { name: "NumPy", value: 85 }
     ],
     mobile: [
-      { name: "React Native", value: 85 },
+      { name: "Dart", value: 85 },
       { name: "Flutter", value: 70 },
-      { name: "Swift", value: 60 },
-      { name: "Kotlin", value: 60 },
-      { name: "Progressive Web Apps", value: 75 }
+      { name: "Dio", value: 60 },
+      { name: "Bloc", value: 60 },
+      { name: "Shared Preferences", value: 75 }
+    ],
+    Database: [
+      { name: "MySQL", value: 85 },
+      { name: "SQL", value: 70 }
     ]
   };
   
@@ -79,7 +86,7 @@ const TechStack: React.FC = () => {
   
   return (
     <section ref={sectionRef} className="py-20 relative z-10">
-      <div className="container max-w-6xl mx-auto px-4">
+      <div className="container max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center mb-3 appear">
             <Code className="h-8 w-8 text-blue-400 mr-2" />
@@ -97,22 +104,26 @@ const TechStack: React.FC = () => {
         
         <div className="appear" style={{ transitionDelay: '0.3s' }}>
           <Tabs defaultValue="frontend" className="w-full">
-            <TabsList className="w-full max-w-md mx-auto bg-space-darker-blue mb-10 grid grid-cols-4">
-              <TabsTrigger value="frontend" className="flex items-center gap-2">
+            <TabsList className="w-full max-w-screen-md mx-auto bg-space-darker-blue mb-10 grid grid-cols-5">
+              <TabsTrigger value="frontend" className="flex items-center gap-1">
                 <Code className="h-4 w-4" />
                 <span className="hidden sm:inline">Frontend</span>
               </TabsTrigger>
-              <TabsTrigger value="backend" className="flex items-center gap-2">
+              <TabsTrigger value="backend" className="flex items-center gap-1">
                 <Server className="h-4 w-4" />
                 <span className="hidden sm:inline">Backend</span>
               </TabsTrigger>
-              <TabsTrigger value="ai" className="flex items-center gap-2">
+              <TabsTrigger value="ai" className="flex items-center gap-1">
                 <Cpu className="h-4 w-4" />
                 <span className="hidden sm:inline">AI</span>
               </TabsTrigger>
-              <TabsTrigger value="mobile" className="flex items-center gap-2">
+              <TabsTrigger value="mobile" className="flex items-center gap-1">
                 <Smartphone className="h-4 w-4" />
                 <span className="hidden sm:inline">Mobile</span>
+              </TabsTrigger>
+              <TabsTrigger value="Database" className="flex items-center gap-1">
+                <Database className="h-4 w-4" />
+                <span className="hidden sm:inline">Database</span>
               </TabsTrigger>
             </TabsList>
             
@@ -127,6 +138,7 @@ const TechStack: React.FC = () => {
                           {category === 'backend' && <Server className="h-5 w-5 text-green-400 mr-2" />}
                           {category === 'ai' && <Cpu className="h-5 w-5 text-purple-400 mr-2" />}
                           {category === 'mobile' && <Smartphone className="h-5 w-5 text-orange-400 mr-2" />}
+                          {category === 'Database' && <Database className="h-5 w-5 text-[#8a9cff] mr-2" />}
                           {category.charAt(0).toUpperCase() + category.slice(1)} Technologies
                         </h3>
                         
@@ -158,6 +170,7 @@ const TechStack: React.FC = () => {
                               {category === 'backend' && <Server className="h-12 w-12 text-green-400" />}
                               {category === 'ai' && <Cpu className="h-12 w-12 text-purple-400" />}
                               {category === 'mobile' && <Smartphone className="h-12 w-12 text-orange-400" />}
+                              {category === 'Database' && <Database className="h-12 w-12 text-[#8a9cff]" />}
                             </div>
                           </div>
                           
@@ -215,6 +228,8 @@ const getTechColorValue = (category: string): string => {
       return 'rgba(168, 85, 247, 0.7)'; // purple-500
     case 'mobile':
       return 'rgba(249, 115, 22, 0.7)'; // orange-500
+    case 'Database':
+      return 'rgba(63, 81, 181, 0.7)'; 
     default:
       return 'rgba(107, 114, 128, 0.7)'; // gray-500
   }
@@ -230,9 +245,76 @@ const getBackgroundColorValue = (category: string, opacity = 0.1): string => {
       return `rgba(168, 85, 247, ${opacity})`; // purple-500
     case 'mobile':
       return `rgba(249, 115, 22, ${opacity})`; // orange-500
+    case 'Database':
+      return 'rgba(63, 81, 181, 0.7)'; 
     default:
       return `rgba(107, 114, 128, ${opacity})`; // gray-500
   }
 };
 
 export default TechStack;
+// const teamMembers: TeamMember[] = [
+//   {
+//     initials: 'AN',
+//     name: 'Adly Nady',
+//     role: 'Project Lead',
+//     department: 'Management',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'TS',
+//     name: 'Taha Shaban',
+//     role: 'UX Designer',
+//     department: 'Design',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'GK',
+//     name: 'Gasy Kamal',
+//     role: 'Frontend Developer',
+//     department: 'Development',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'KM',
+//     name: 'Karma Magdi',
+//     role: 'Backend Developer',
+//     department: 'Development',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'RE',
+//     name: 'Remon Ezz',
+//     role: 'AI Specialist',
+//     department: 'AI Research',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'CM',
+//     name: 'Catherine Melad',
+//     role: 'AI Specialist',
+//     department: 'AI Research',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'NH',
+//     name: 'Naiera Hazem',
+//     role: 'AI Specialist',
+//     department: 'AI Research',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'YA',
+//     name: 'Yara Adel',
+//     role: 'AI Specialist',
+//     department: 'AI Research',
+//     image: 'https://via.placeholder.com/150',
+//   },
+//   {
+//     initials: 'CA',
+//     name: 'Christina Atef',
+//     role: 'AI Specialist',
+//     department: 'AI Research',
+//     image: 'https://via.placeholder.com/150',
+//   },
+// ];
