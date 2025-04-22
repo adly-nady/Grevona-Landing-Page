@@ -62,7 +62,7 @@ const TeamSection: React.FC = () => {
         skills: ['Backend', 'Frontend'],
         color: 'from-blue-400 to-indigo-500',
         image: '/mem/taha.png',
-        social: { github: 'johndoe', linkedin: 'johndoe' },
+        social: { github: 'Taha-Shaban-Kaamel', linkedin: 'tahashaban' },
         isFeatured: true,
       },
       {
@@ -73,7 +73,7 @@ const TeamSection: React.FC = () => {
         skills: ['Backend', 'Frontend', 'DevOps', 'AI', 'Mobile'],
         color: 'from-purple-400 to-pink-500',
         image: '/mem/leader.png',
-        social: { github: 'alicesmith', linkedin: 'alicesmith' },
+        social: { github: 'adly-nady', linkedin: 'adly-nady-10741b236' },
       },
       {
         initials: 'GK',
@@ -83,7 +83,7 @@ const TeamSection: React.FC = () => {
         skills: ['Figma', 'Sketch'],
         color: 'from-sky-400 to-blue-500',
         image: '/mem/gasy.png',
-        social: { github: 'mikebrown', linkedin: 'mikebrown' },
+        social: { github: 'Gasy-Kamal', linkedin: 'gasy-kamal-904873359' },
       },
       {
         initials: 'KM',
@@ -93,7 +93,7 @@ const TeamSection: React.FC = () => {
         skills: ['Figma', 'Sketch'],
         color: 'from-sky-400 to-blue-500',
         image: '/mem/karma.png',
-        social: { github: 'robertkim', linkedin: 'robertkim' },
+        social: { github: 'Karma-Magdii', linkedin: 'karma-magdy-15259531a' },
       },
       {
         initials: 'RE',
@@ -103,7 +103,7 @@ const TeamSection: React.FC = () => {
         skills: ['React', 'Tailwind CSS'],
         color: 'from-violet-400 to-purple-500',
         image: '/mem/remon.png',
-        social: { github: 'lisajohnson', linkedin: 'lisajohnson' },
+        social: { github: 'Remon-Ezz', linkedin: 'remon-ezz-4989b0267' },
       },
       {
         initials: 'YA',
@@ -113,7 +113,7 @@ const TeamSection: React.FC = () => {
         skills: ['SQL', 'MySQL'],
         color: 'from-green-400 to-lime-500',
         image: '/mem/Yara.png',
-        social: { github: 'tomwilson', linkedin: 'tomwilson' },
+        social: { github: 'Yara-Adel', linkedin: 'yara-adel-4b3605205' },
       },
       {
         initials: 'NH',
@@ -123,7 +123,7 @@ const TeamSection: React.FC = () => {
         skills: ['Figma', 'Sketch'],
         color: 'from-cyan-400 to-blue-500',
         image: '/mem/naire.png',
-        social: { github: 'tomwilson', linkedin: 'emmastone' },
+        social: { github: 'Naiera-Hazem', linkedin: 'naiera-hazem' },
       },
       {
         initials: 'CM',
@@ -133,7 +133,7 @@ const TeamSection: React.FC = () => {
         skills: ['React', 'Tailwind CSS'],
         color: 'from-pink-400 to-red-500',
         image: '/mem/cathrein.png',
-        social: { github: 'sarahclark', linkedin: 'sarahclark' },
+        social: { github: 'CatherineMelad', linkedin: 'catherine-melad' },
       },
       {
         initials: 'CA',
@@ -143,7 +143,7 @@ const TeamSection: React.FC = () => {
         skills: ['APIs', 'Logic'],
         color: 'from-orange-400 to-amber-500',
         image: '/mem/christina.png',
-        social: { github: 'chloelee', linkedin: 'chloelee' },
+        social: { github: 'christinaatef', linkedin: 'christina-atef-357388288' },
       },
       {
         initials: 'SL',
@@ -153,7 +153,7 @@ const TeamSection: React.FC = () => {
         skills: ['Documentation', 'Writing'],
         color: 'from-indigo-400 to-purple-500',
         image: '/mem/Sara.png',
-        social: { github: 'chloelee', linkedin: 'davidpark' },
+        social: { github: 'chloelee', linkedin: 'Sara-Lotfy' },
       },
     ],
     []
